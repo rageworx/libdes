@@ -1,0 +1,65 @@
+# Makefile for 'libdes'
+# ----------------------------------------------------------------------
+# Written by Raphael Kim
+#
+
+GCC = gcc
+GPP = g++
+AR  = ar
+
+# Base PATH
+BASE_PATH = .
+LIB_PATH  = $(BASE_PATH)/lib
+SRC_PATH  = $(BASE_PATH)/test
+
+# TARGET settings
+TARGET_PKG = destest
+TARGET_DIR = ./bin/Release
+TARGET_OBJ = ./obj/Release
+
+# DEFINITIONS
+DEFS  =
+
+# Compiler options
+COPTS  = -O3 -s
+
+# CC FLAG
+CFLAGS  = -I$(SRC_PATH)
+CFLAGS += -I$(LIB_PATH)
+CFLAGS += $(DEFS)
+CFLAGS += $(COPTS)
+
+# LINK FLAG
+LFLAGS  = -static
+LFLAGS += -L$(LIB_PATH)
+LFLAGS += -ldes
+
+# Sources ( for any cpp )
+SRCS = $(SRC_PATH)/destool.cpp
+
+# Make object targets from SRCS.
+OBJS = $(SRCS:$(SRC_PATH)/%.cpp=$(TARGET_OBJ)/%.o)
+
+.PHONY: prepare clean
+
+all: prepare clean continue
+continue: $(TARGET_DIR)/$(TARGET_PKG)
+
+prepare:
+	@mkdir -p $(TARGET_DIR)
+	@mkdir -p $(TARGET_OBJ)
+
+clean:
+	@echo "Cleaning built targets ..."
+	@rm -rf $(TARGET_DIR)/$(TARGET_PKG)
+	@rm -rf $(TARGET_DIR)/*.h
+	@rm -rf $(TARGET_OBJ)/*.o
+
+$(OBJS): $(TARGET_OBJ)/%.o: $(SRC_PATH)/%.cpp
+	@echo "Compiling $@ ... "
+	@$(GPP) $(CFLAGS) -c $< -o $@
+
+$(TARGET_DIR)/$(TARGET_PKG): $(OBJS)
+	@echo "Generating $@ ..."
+	@$(GPP) $(CFLAGS) $(OBJS) $(LFLAGS) -o $@
+	@echo "done."
